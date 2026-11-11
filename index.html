@@ -248,7 +248,7 @@
             student: { firstname: '', lastname: '' },
             currentQuestionIndex: 0,
             answers: {}, // questionId -> user input
-            webhookUrl: 'https://script.google.com/macros/s/AKfycbyhiIVVKak0KkACXGAM98DHlOYZ1V5vhWbOUE69Z_oC_Wh1wVTQuDCxuK7v5JlyggvF/exec',
+            webhookUrl: 'https://script.google.com/macros/s/AKfycbwxS-vBmjkiIz2EtDsvC6QXb3Sajq8pcLXQutsHXGRCgIAMNQfnO1NoNEE0LakEN6-p/exec',
             questions: []
         };
 
@@ -1052,20 +1052,19 @@
             });
             const mark12 = Math.max(1, Math.round((correctCount / state.questions.length) * 12));
 
-            const payload = {
-                timestamp: new Date().toLocaleString('uk-UA'),
-                lastname: state.student.lastname,
-                firstname: state.student.firstname,
-                scoreRaw: `${correctCount}/${state.questions.length}`,
-                mark12: mark12,
-                answersDetail: state.questions.map((q, i) => `Q${i+1}:${isQuestionCorrect(q, state.answers[q.id]) ? '1' : '0'}`).join(';')
-            };
+            const formData = new URLSearchParams();
+            formData.append('timestamp', new Date().toLocaleString('uk-UA'));
+            formData.append('lastname', state.student.lastname);
+            formData.append('firstname', state.student.firstname);
+            formData.append('scoreRaw', `${correctCount}/${state.questions.length}`);
+            formData.append('mark12', mark12);
+            formData.append('answersDetail', state.questions.map((q, i) => `Q${i+1}:${isQuestionCorrect(q, state.answers[q.id]) ? '1' : '0'}`).join(';'));
 
             fetch(state.webhookUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
             })
             .then(() => {
                 showToast('Результати успішно відправлені вчителю у Google Таблицю!', 'success');
@@ -1112,11 +1111,10 @@
                 toast.style.borderColor = '#10b981';
             } else if (type === 'error') {
                 icon.className = 'fa-solid fa-circle-exclamation text-rose-400 text-lg';
-
                 toast.style.borderColor = '#f43f5e';
             } else {
                 icon.className = 'fa-solid fa-circle-info text-indigo-400 text-lg';
-                toast.style.borderColor = '#6366f1';
+toast.style.borderColor = '#6366f1';
             }
 
             toast.classList.remove('translate-y-20', 'opacity-0');
